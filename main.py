@@ -2,6 +2,7 @@
 import argparse
 import time
 import math
+import numpy as np
 import os
 import torch
 import torch.nn as nn
@@ -89,7 +90,7 @@ eval_batch_size = 64
 train_data = batchify(corpus.train, args.batch_size)
 val_data = batchify(corpus.valid, eval_batch_size)
 test_data = batchify(corpus.test, eval_batch_size)
-
+print np.max(corpus.train.numpy())
 ###############################################################################
 # Build the model
 ###############################################################################
