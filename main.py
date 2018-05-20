@@ -90,12 +90,12 @@ eval_batch_size = 64
 train_data = batchify(corpus.train, args.batch_size)
 val_data = batchify(corpus.valid, eval_batch_size)
 test_data = batchify(corpus.test, eval_batch_size)
-print np.max(corpus.train.numpy())
+
 ###############################################################################
 # Build the model
 ###############################################################################
 
-ntokens = len(corpus.dictionary) + 1
+ntokens = len(corpus.dictionary) + 2
 print (ntokens)
 if args.cuda:
     model = model.RNNModel(args.model, ntokens, args.emsize, args.nhid, args.nlayers, args.dropout, args.tied).cuda()
