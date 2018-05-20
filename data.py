@@ -26,7 +26,7 @@ class Dictionary(object):
                 if c > self.min_freq:
                     self.idx2word.append(w)
                     self.word2idx[w] = len(self.idx2word) - 1
-            self.word2idx['**unknown**'] = len(self.word2idx) + 1
+            self.word2idx['__UNK__'] = len(self.word2idx) + 1
             print ("Size of vocabulary: " + str(len(self.idx2word)))
             np.save(os.path.join(path, 'w2id.npy'), self.word2idx)
             np.save(os.path.join(path, 'id2w.npy'), self.idx2word)
@@ -38,7 +38,7 @@ class Dictionary(object):
         try:
             return self.word2idx[word]
         except KeyError:
-            return self.word2idx['**unknown**']
+            return self.word2idx['__UNK__']
 
     def __len__(self):
         return len(self.idx2word)
