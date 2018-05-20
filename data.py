@@ -2,6 +2,8 @@ import os
 import torch
 from collections import defaultdict
 import numpy as np
+from torch.autograd import Variable
+
 
 class Dictionary(object):
     def __init__(self, min_freq):
@@ -77,7 +79,7 @@ class Corpus(object):
 
         # Tokenize file content
         with open(path, 'r') as f:
-            ids = torch.LongTensor(tokens)
+            ids = Variable(torch.LongTensor(tokens))
             token = 0
             for line in f:
                 words = line.split() + ['<eos>']
