@@ -137,14 +137,14 @@ def evaluate(data_source):
     # Turn on evaluation mode which disables dropout.
     model.eval()
     total_loss = 0.
-    ntokens = len(corpus.dictionary)
+    #ntokens = len(corpus.dictionary)
     hidden = model.init_hidden(eval_batch_size)
     with torch.no_grad():
         for i in range(0, data_source.size(0) - 1, args.bptt):
             data, targets = get_batch(data_source, i)
             output, hidden = model(data, hidden)
             output_flat = output.view(-1, ntokens)
-            total_loss += len(data) * criterion(output_flat, targets).item()
+            total_loss += len(data) * criterion(output_flat, targets).data
             hidden = repackage_hidden(hidden)
     return total_loss / len(data_source)
 
@@ -154,7 +154,7 @@ def train():
     model.train()
     total_loss = 0.
     start_time = time.time()
-    ntokens = len(corpus.dictionary) + 2
+    #ntokens = len(corpus.dictionary) + 2
     hidden = model.init_hidden(args.batch_size)
     for batch, i in enumerate(range(0, train_data.size(0) - 1, args.bptt)):
         data, targets = get_batch(train_data, i)
@@ -171,7 +171,7 @@ def train():
         for p in model.parameters():
             p.data.add_(-lr, p.grad.data)
 
-        total_loss += loss.item()
+        total_loss += loss.data
 
         if batch % args.log_interval == 0 and batch > 0:
             cur_loss = total_loss / args.log_interval
