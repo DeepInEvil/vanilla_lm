@@ -145,7 +145,7 @@ def evaluate(data_source):
             data, targets = get_batch(data_source, i)
             output, hidden = model(data, hidden)
             output_flat = output.view(-1, ntokens)
-            total_loss += len(data) * criterion(output_flat, targets).data
+            total_loss += len(data) * criterion(output_flat, targets).data[0]
             hidden = repackage_hidden(hidden)
     return total_loss / len(data_source)
 
@@ -172,12 +172,10 @@ def train():
         for p in model.parameters():
             p.data.add_(-lr, p.grad.data)
 
-        total_loss += loss.data
+        total_loss += loss.data[0]
 
         if batch % args.log_interval == 0 and batch > 0:
-            print (total_loss)
             cur_loss = total_loss / args.log_interval
-            print (cur_loss)
             elapsed = time.time() - start_time
             print('| epoch {:3d} | {:5d}/{:5d} batches | lr {:02.2f} | ms/batch {:5.2f} | '
                     'loss {:5.2f} | ppl {:8.2f}'.format(
