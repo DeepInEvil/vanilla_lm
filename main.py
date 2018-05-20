@@ -108,6 +108,7 @@ criterion = nn.CrossEntropyLoss()
 # Training code
 ###############################################################################
 
+
 def repackage_hidden(h):
     """Wraps hidden states in new Variables, to detach them from their history."""
     if type(h) == Variable:
@@ -174,7 +175,9 @@ def train():
         total_loss += loss.data
 
         if batch % args.log_interval == 0 and batch > 0:
+            print (total_loss)
             cur_loss = total_loss / args.log_interval
+            print (cur_loss)
             elapsed = time.time() - start_time
             print('| epoch {:3d} | {:5d}/{:5d} batches | lr {:02.2f} | ms/batch {:5.2f} | '
                     'loss {:5.2f} | ppl {:8.2f}'.format(
