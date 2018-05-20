@@ -1,16 +1,36 @@
 import os
 import torch
+from collections import defaultdict
+
 
 class Dictionary(object):
-    def __init__(self):
+    def __init__(self, min_freq):
         self.word2idx = {}
         self.idx2word = []
+        self.vocab = defaultdict(float)
+        self.min_freq = min_freq
 
-    def add_word(self, word):
-        if word not in self.word2idx:
-            self.idx2word.append(word)
-            self.word2idx[word] = len(self.idx2word) - 1
-        return self.word2idx[word]
+    def create_vocab(self, word):
+        self.vocab[word] += 1.0
+
+    # def add_word(self, word):
+    #     if word not in self.word2idx:
+    #         self.idx2word.append(word)
+    #         self.word2idx[word] = len(self.idx2word) - 1
+    #     return self.word2idx[word]
+
+    def create_w2id(self):
+        for w, c in self.vocab.items():
+            if c > self.min_freq:
+                self.idx2word.append(w)
+                self.word2idx[w] = len(self.idx2word) - 1
+        self.word2idx['**unknown**'] = len(self.word2idx) + 1
+
+    def get_w2id(self, word):
+        try:
+            return self.word2idx[word]
+        except KeyError:
+            return self.word2idx['**unknown**']
 
     def __len__(self):
         return len(self.idx2word)
@@ -18,7 +38,7 @@ class Dictionary(object):
 
 class Corpus(object):
     def __init__(self, path):
-        self.dictionary = Dictionary()
+        self.dictionary = Dictionary(10)
         self.train = self.tokenize(os.path.join(path, 'train.txt'))
         self.valid = self.tokenize(os.path.join(path, 'valid.txt'))
         self.test = self.tokenize(os.path.join(path, 'test.txt'))
@@ -33,7 +53,8 @@ class Corpus(object):
                 words = line.split() + ['<eos>']
                 tokens += len(words)
                 for word in words:
-                    self.dictionary.add_word(word)
+                    self.dictionary.create_vocab(word)
+        self.dictionary.create_w2id()
 
         # Tokenize file content
         with open(path, 'r') as f:
@@ -42,7 +63,7 @@ class Corpus(object):
             for line in f:
                 words = line.split() + ['<eos>']
                 for word in words:
-                    ids[token] = self.dictionary.word2idx[word]
+                    ids[token] = self.dictionary.get_w2id(word)
                     token += 1
 
         return ids
