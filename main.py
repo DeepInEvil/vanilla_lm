@@ -140,13 +140,12 @@ def evaluate(data_source):
     total_loss = 0.
     #ntokens = len(corpus.dictionary)
     hidden = model.init_hidden(eval_batch_size)
-    with torch.no_grad():
-        for i in range(0, data_source.size(0) - 1, args.bptt):
-            data, targets = get_batch(data_source, i)
-            output, hidden = model(data, hidden)
-            output_flat = output.view(-1, ntokens)
-            total_loss += len(data) * criterion(output_flat, targets).data[0]
-            hidden = repackage_hidden(hidden)
+    for i in range(0, data_source.size(0) - 1, args.bptt):
+        data, targets = get_batch(data_source, i)
+        output, hidden = model(data, hidden)
+        output_flat = output.view(-1, ntokens)
+        total_loss += len(data) * criterion(output_flat, targets).data[0]
+        hidden = repackage_hidden(hidden)
     return total_loss / len(data_source)
 
 
