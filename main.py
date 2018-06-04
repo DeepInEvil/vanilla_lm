@@ -98,6 +98,7 @@ test_data = batchify(corpus.test, eval_batch_size)
 ntokens = len(corpus.dictionary) + 2
 print (ntokens)
 if args.cuda:
+    print ("Using CUDA...")
     model = model_lstm.RNNModel(args.model, ntokens, args.emsize, args.nhid, args.nlayers, args.dropout, args.tied).cuda()
 else:
     model = model_lstm.RNNModel(args.model, ntokens, args.emsize, args.nhid, args.nlayers, args.dropout, args.tied)
