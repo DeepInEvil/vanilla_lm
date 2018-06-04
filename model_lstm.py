@@ -63,6 +63,7 @@ class RNNModel(nn.Module):
     def forward(self, input, hidden):
         emb = self.drop(self.encoder(input))
         #output, hidden = self.rnn(emb, hidden)
+        raw_output = emb
         new_hidden = []
         #raw_output, hidden = self.rnn(emb, hidden)
         raw_outputs = []
@@ -70,7 +71,7 @@ class RNNModel(nn.Module):
         #print (self.rnns)
         for l, rnn in enumerate(self.rnns):
             print (rnn)
-            raw_output, new_h = self.run_lstmcell(rnn, emb, hidden[l])
+            raw_output, new_h = self.run_lstmcell(rnn, raw_output, hidden[l])
             new_hidden.append(new_h)
             raw_outputs.append(raw_output)
             if l != self.nlayers - 1:
