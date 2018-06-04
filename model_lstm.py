@@ -15,7 +15,7 @@ class RNNModel(nn.Module):
         if rnn_type == 'LSTM':
             self.rnns = [
                 LSTMCell(ninp if l == 0 else nhid, nhid if l != nlayers - 1 else (ninp if tie_weights else nhid),
-                         bias=True) for l in range(nlayers)]
+                         bias=True).cuda() for l in range(nlayers)]
         else:
             try:
                 nonlinearity = {'RNN_TANH': 'tanh', 'RNN_RELU': 'relu'}[rnn_type]
@@ -69,10 +69,10 @@ class RNNModel(nn.Module):
             raw_output, new_h = self.run_lstmcell(rnn, emb, hidden[l])
             new_hidden.append(new_h)
             raw_outputs.append(raw_output)
-            if l != self.nlayers - 1:
-                #self.hdrop(raw_output)
-                raw_output = self.lockdrop(raw_output, self.dropouth)
-                outputs.append(raw_output)
+            # if l != self.nlayers - 1:
+            #     #self.hdrop(raw_output)
+            #     raw_output = self.lockdrop(raw_output, self.dropouth)
+            outputs.append(raw_output)
         output = self.drop(outputs)
         decoded = self.decoder(output.view(output.size(0)*output.size(1), output.size(2)))
         return decoded.view(output.size(0), output.size(1), decoded.size(1)), hidden
