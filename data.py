@@ -12,7 +12,7 @@ class Dictionary(object):
         self.vocab = defaultdict(float)
         self.min_freq = min_freq
 
-    def create_vocab(self, word):
+    def add_vocab(self, word):
         self.vocab[word] += 1.0
 
     # def add_word(self, word):
@@ -54,7 +54,6 @@ class Corpus(object):
         self.valid = self.tokenize(os.path.join(path, 'valid.txt'))
         self.test = self.tokenize(os.path.join(path, 'test.txt'))
 
-
     def tokenize(self, path, train=False):
         """Tokenizes a text file."""
         assert os.path.exists(path)
@@ -62,18 +61,20 @@ class Corpus(object):
         if train:
             with open(path, 'r') as f:
                 tokens = 0
-                for line in f:
-                    words = line.split() + ['<eos>']
-                    tokens += len(words)
-                    for word in words:
-                        self.dictionary.create_vocab(word)
+                for lines in f:
+                    for line in lines.split('.'):
+                        words = ['<go>'] + line.split() + ['<eos>']
+                        tokens += len(words)
+                        for word in words:
+                            self.dictionary.add_vocab(word)
             self.dictionary.create_w2id(create=True, path=self.path)
         else:
             with open(path, 'r') as f:
                 tokens = 0
-                for line in f:
-                    words = line.split() + ['<eos>']
-                    tokens += len(words)
+                for lines in f:
+                    for line in lines.split('.'):
+                        words = ['<go>'] + line.split() + ['<eos>']
+                        tokens += len(words)
             self.dictionary.create_w2id(path=self.path)
 
 
