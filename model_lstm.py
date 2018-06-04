@@ -66,7 +66,6 @@ class RNNModel(nn.Module):
         raw_outputs = []
         outputs = []
         for l, rnn in enumerate(self.rnns):
-            print (emb.size(), hidden[l].size())
             raw_output, new_h = self.run_lstmcell(rnn, emb, hidden[l])
             new_hidden.append(new_h)
             raw_outputs.append(raw_output)
