@@ -12,6 +12,7 @@ class RNNModel(nn.Module):
         self.drop = nn.Dropout(dropout)
         self.lockdrop = LockedDropout()
         self.dropouth = dropouth
+        self.dropout = dropout
         self.encoder = nn.Embedding(ntoken, ninp)
         assert rnn_type in ['LSTM', 'QRNN', 'GRU'], 'RNN type is not supported'
         if rnn_type == 'LSTM':
@@ -79,7 +80,8 @@ class RNNModel(nn.Module):
                 raw_output = self.lockdrop(raw_output, self.dropouth)
                 outputs.append(raw_output)
             #outputs.append(raw_output)
-        output = self.drop(outputs)
+        output = self.lockdrop(raw_output, self.dropout)
+        outputs.append(output)
         decoded = self.decoder(output.view(output.size(0)*output.size(1), output.size(2)))
         return decoded.view(output.size(0), output.size(1), decoded.size(1)), hidden
 
