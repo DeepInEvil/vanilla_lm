@@ -31,8 +31,9 @@ def LSTMCell_func(input, hidden, w_ih, w_hh, b_ih=None, b_hh=None, topic=None, t
     #     return state(igates, hgates, hidden[1]) if b_ih is None else state(igates, hgates, hidden[1], b_ih, b_hh)
 
     hx, cx = hidden
-    gates = F.linear(input, w_ih, b_ih) + F.linear(hx, w_hh, b_hh)
-
+    g1 = F.linear(input, w_ih, b_ih)
+    g2 = F.linear(hx, w_hh, b_hh)
+    gates = g1 + g2
     ingate, forgetgate, cellgate, outgate = gates.chunk(4, 1)
     ingate = F.sigmoid(ingate)
 
