@@ -63,7 +63,7 @@ class Corpus(object):
                 tokens = 0
                 for lines in f:
                     for line in lines.split('.'):
-                        words = ['<go>'] + line.split() + ['<eos>']
+                        words = ['<go>'] + line.strip().split() + ['<eos>']
                         tokens += len(words)
                         for word in words:
                             self.dictionary.add_vocab(word)
@@ -73,7 +73,7 @@ class Corpus(object):
                 tokens = 0
                 for lines in f:
                     for line in lines.split('.'):
-                        words = ['<go>'] + line.split() + ['<eos>']
+                        words = ['<go>'] + line.strip().split() + ['<eos>']
                         tokens += len(words)
             self.dictionary.create_w2id(path=self.path)
 
