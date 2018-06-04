@@ -2,7 +2,7 @@ import torch.nn as nn
 import torch
 from torch.autograd import Variable
 from LSTM_topic import LSTMCell
-
+from locked_dropout import LockedDropout
 
 class RNNModel(nn.Module):
     """Container module with an encoder, a recurrent module, and a decoder."""
@@ -10,6 +10,7 @@ class RNNModel(nn.Module):
     def __init__(self, rnn_type, ntoken, ninp, nhid, nlayers, dropout=0.5, tie_weights=False):
         super(RNNModel, self).__init__()
         self.drop = nn.Dropout(dropout)
+        self.lockdrop = LockedDropout()
         self.encoder = nn.Embedding(ntoken, ninp)
         assert rnn_type in ['LSTM', 'QRNN', 'GRU'], 'RNN type is not supported'
         if rnn_type == 'LSTM':
@@ -70,10 +71,11 @@ class RNNModel(nn.Module):
             raw_output, new_h = self.run_lstmcell(rnn, emb, hidden[l])
             new_hidden.append(new_h)
             raw_outputs.append(raw_output)
-            # if l != self.nlayers - 1:
-            #     #self.hdrop(raw_output)
-            #     raw_output = self.lockdrop(raw_output, self.dropouth)
-            outputs.append(raw_output)
+            if l != self.nlayers - 1:
+                #self.hdrop(raw_output)
+                raw_output = self.lockdrop(raw_output, self.dropouth)
+                outputs.append(raw_output)
+            #outputs.append(raw_output)
         output = self.drop(outputs)
         decoded = self.decoder(output.view(output.size(0)*output.size(1), output.size(2)))
         return decoded.view(output.size(0), output.size(1), decoded.size(1)), hidden
