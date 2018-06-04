@@ -61,20 +61,18 @@ class Corpus(object):
         if train:
             with open(path, 'r') as f:
                 tokens = 0
-                for lines in f:
-                    for line in lines.split('.'):
-                        words = ['<go>'] + line.strip().split() + ['<eos>']
-                        tokens += len(words)
-                        for word in words:
-                            self.dictionary.add_vocab(word)
+                for line in f:
+                    words = ['<go>'] + line.split() + ['<eos>']
+                    tokens += len(words)
+                    for word in words:
+                        self.dictionary.add_vocab(word)
             self.dictionary.create_w2id(create=True, path=self.path)
         else:
             with open(path, 'r') as f:
                 tokens = 0
-                for lines in f:
-                    for line in lines.split('.'):
-                        words = ['<go>'] + line.strip().split() + ['<eos>']
-                        tokens += len(words)
+                for line in f:
+                    words = ['<go>'] + line.split() + ['<eos>']
+                    tokens += len(words)
             self.dictionary.create_w2id(path=self.path)
 
 
