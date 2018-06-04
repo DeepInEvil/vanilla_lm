@@ -31,7 +31,6 @@ def LSTMCell_func(input, hidden, w_ih, w_hh, b_ih=None, b_hh=None, topic=None, t
     #     return state(igates, hgates, hidden[1]) if b_ih is None else state(igates, hgates, hidden[1], b_ih, b_hh)
 
     hx, cx = hidden
-    print (type(cx), type(w_ih), type(input))
     gates = F.linear(input, w_ih, b_ih) + F.linear(hx, w_hh, b_hh)
 
     ingate, forgetgate, cellgate, outgate = gates.chunk(4, 1)
@@ -140,11 +139,7 @@ class LSTMCell(RNNCellBase):
         self.weight_drop = nn.Dropout(p=drop)
 
         self.weight_ih = Parameter(torch.Tensor(4 * hidden_size, input_size))
-        #self.weight_ih = self.weight_drop(self.weight_ih)
         self.weight_hh = Parameter(torch.Tensor(4 * hidden_size, hidden_size))
-        #self.weight_hh = self.recurrent_drop(self.weight_hh)
-        #self.topic_w_i = Parameter(torch.Tensor(hidden_size, topic_size))
-        #self.topic_w_f = Parameter(torch.Tensor(hidden_size, topic_size))
         if bias:
             self.bias_ih = Parameter(torch.Tensor(4 * hidden_size))
             self.bias_hh = Parameter(torch.Tensor(4 * hidden_size))
@@ -159,14 +154,7 @@ class LSTMCell(RNNCellBase):
             weight.data.uniform_(-stdv, stdv)
 
     def forward(self, input, hx):
-        #self.check_forward_input(input, topic)
-        #self.check_forward_hidden(input, hx[0], '[0]')
-        #self.check_forward_hidden(input, hx[1], '[1]')
-        # return LSTMCell_func(
-        #     input, hx,
-        #     self.weight_ih, self.weight_hh,
-        #     self.bias_ih, self.bias_hh, topic, self.topic_w_i, self.topic_w_f, self.weight_drop
-        # )
+        print (type(input), type(hx))
         return LSTMCell_func(
             input, hx,
             self.weight_ih, self.weight_hh,
