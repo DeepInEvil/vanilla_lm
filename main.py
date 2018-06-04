@@ -74,6 +74,7 @@ corpus = data.Corpus(args.data)
 # dependence of e. g. 'g' on 'f' can not be learned, but allows more efficient
 # batch processing.
 
+
 def batchify(data, bsz):
     # Work out how cleanly we can divide the dataset into bsz parts.
     nbatch = data.size(0) // bsz

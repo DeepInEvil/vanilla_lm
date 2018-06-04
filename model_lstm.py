@@ -3,6 +3,7 @@ import torch
 from torch.autograd import Variable
 from LSTM_topic import LSTMCell
 
+
 class RNNModel(nn.Module):
     """Container module with an encoder, a recurrent module, and a decoder."""
 

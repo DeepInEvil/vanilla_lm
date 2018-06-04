@@ -155,7 +155,7 @@ class LSTMCell(RNNCellBase):
             weight.data.uniform_(-stdv, stdv)
 
     def forward(self, input, hx):
-        print (type(input), type(hx))
+        print (self.weight_ih)
         return LSTMCell_func(
             input, hx,
             self.weight_ih, self.weight_hh,
