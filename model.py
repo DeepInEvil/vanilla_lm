@@ -1,7 +1,7 @@
 import torch.nn as nn
 import torch
 from torch.autograd import Variable
-
+from CustomLSTMCell import LSTMCell
 
 class RNNModel(nn.Module):
     """Container module with an encoder, a recurrent module, and a decoder."""
@@ -11,7 +11,8 @@ class RNNModel(nn.Module):
         self.drop = nn.Dropout(dropout)
         self.encoder = nn.Embedding(ntoken, ninp)
         if rnn_type in ['LSTM', 'GRU']:
-            self.rnn = getattr(nn, rnn_type)(ninp, nhid, nlayers, dropout=dropout)
+            #self.rnn = getattr(nn, rnn_type)(ninp, nhid, nlayers, dropout=dropout)
+            self.rnn = LSTMCell(ninp, nhid, dropout=dropout)
             # self.rnn = nn.Sequential(OrderedDict([
             #                 ('LSTM1', nn.LSTM(ninp, nhid, 1),
             #                 ('LSTM2', nn.LSTM(ninp, nhid, 1)))]))
