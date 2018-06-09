@@ -12,7 +12,7 @@ class RNNModel(nn.Module):
         self.encoder = nn.Embedding(ntoken, ninp)
         if rnn_type in ['LSTM', 'GRU']:
             #self.rnn = getattr(nn, rnn_type)(ninp, nhid, nlayers, dropout=dropout)
-            self.rnn = LSTMCell(ninp, nhid, dropout=dropout)
+            self.rnn = LSTMCell(ninp, nhid, dropout=dropout, batch_first=False)
             # self.rnn = nn.Sequential(OrderedDict([
             #                 ('LSTM1', nn.LSTM(ninp, nhid, 1),
             #                 ('LSTM2', nn.LSTM(ninp, nhid, 1)))]))
