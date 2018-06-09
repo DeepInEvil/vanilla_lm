@@ -9,7 +9,7 @@ import torch.nn as nn
 import torch.onnx
 from torch.autograd import Variable
 import data
-import model_lstm
+import model
 
 parser = argparse.ArgumentParser(description='PyTorch Wikitext-2 RNN/LSTM Language Model')
 parser.add_argument('--data', type=str, default='./data/wikitext-2',
@@ -100,9 +100,9 @@ ntokens = len(corpus.dictionary) + 2
 print (ntokens)
 if args.cuda:
     print ("Using CUDA...")
-    model = model_lstm.RNNModel(args.model, ntokens, args.emsize, args.nhid, args.nlayers, args.dropout, args.tied).cuda()
+    model = model.RNNModel(args.model, ntokens, args.emsize, args.nhid, args.nlayers, args.dropout, args.tied).cuda()
 else:
-    model = model_lstm.RNNModel(args.model, ntokens, args.emsize, args.nhid, args.nlayers, args.dropout, args.tied)
+    model = model.RNNModel(args.model, ntokens, args.emsize, args.nhid, args.nlayers, args.dropout, args.tied)
 
 criterion = nn.CrossEntropyLoss()
 
