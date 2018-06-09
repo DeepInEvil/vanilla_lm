@@ -12,6 +12,9 @@ class RNNModel(nn.Module):
         self.encoder = nn.Embedding(ntoken, ninp)
         if rnn_type in ['LSTM', 'GRU']:
             self.rnn = getattr(nn, rnn_type)(ninp, nhid, nlayers, dropout=dropout)
+            # self.rnn = nn.Sequential(OrderedDict([
+            #                 ('LSTM1', nn.LSTM(ninp, nhid, 1),
+            #                 ('LSTM2', nn.LSTM(ninp, nhid, 1)))]))
         else:
             try:
                 nonlinearity = {'RNN_TANH': 'tanh', 'RNN_RELU': 'relu'}[rnn_type]
