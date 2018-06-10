@@ -59,7 +59,8 @@ class LSTMCell(nn.Module):
         if self.batch_first:
             output = output.transpose(0, 1)
 
-        if isinstance(hidden, tuple):
-            return output, hidden[0]
-        else:
-            return output, hidden
+        # if isinstance(hidden, tuple):
+        #     return output, hidden[0]
+        # else:
+        #     return output, hidden
+        return output, hidden
