@@ -97,7 +97,7 @@ test_data = batchify(corpus.test, eval_batch_size)
 ###############################################################################
 
 ntokens = len(corpus.dictionary) + 2
-print (ntokens)
+print ("Length of vocabulary: " + str(ntokens))
 if args.cuda:
     print ("Using CUDA...")
     model = model.RNNModel(args.model, ntokens, args.emsize, args.nhid, args.nlayers, args.dropout, args.tied).cuda()

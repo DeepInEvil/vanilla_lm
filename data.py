@@ -29,7 +29,7 @@ class Dictionary(object):
                     self.idx2word.append(w)
                     self.word2idx[w] = len(self.idx2word) - 1
             self.word2idx['__UNK__'] = len(self.word2idx) + 1
-            print ("Size of vocabulary: " + str(len(self.idx2word)))
+            #print ("Size of vocabulary: " + str(len(self.idx2word)))
             np.save(os.path.join(path, 'w2id.npy'), self.word2idx)
             np.save(os.path.join(path, 'id2w.npy'), self.idx2word)
         else:
