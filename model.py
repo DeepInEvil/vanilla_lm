@@ -10,12 +10,17 @@ class RNNModel(nn.Module):
         super(RNNModel, self).__init__()
         self.drop = nn.Dropout(dropout)
         self.encoder = nn.Embedding(ntoken, ninp)
+        self.nlayers = nlayers
         if rnn_type in ['LSTM', 'GRU']:
             #self.rnn = getattr(nn, rnn_type)(ninp, nhid, nlayers, dropout=dropout)
-            self.rnn = LSTMCell(ninp, nhid, dropout=dropout, batch_first=False)
+            #self.rnn = LSTMCell(ninp, nhid, dropout=dropout, batch_first=False)
             # self.rnn = nn.Sequential(OrderedDict([
             #                 ('LSTM1', nn.LSTM(ninp, nhid, 1),
             #                 ('LSTM2', nn.LSTM(ninp, nhid, 1)))]))
+            self.rnns = nn.ModuleList()
+            for i in range(nlayers):
+                ninp = ninp if i == 0 else nhid
+                self.rnns.append(LSTMCell(ninp, nhid, dropout=dropout, batch_first=False))
         else:
             try:
                 nonlinearity = {'RNN_TANH': 'tanh', 'RNN_RELU': 'relu'}[rnn_type]
@@ -50,8 +55,14 @@ class RNNModel(nn.Module):
 
     def forward(self, input, hidden):
         emb = self.drop(self.encoder(input))
-        output, hidden = self.rnn(emb, hidden)
-        output = self.drop(output)
+        #output, hidden = self.rnn(emb, hidden)
+        sent_variable = emb
+        outputs = []
+        for i in range(self.nlayers):
+            output, hidden = self.rnns[i](sent_variable, hidden)
+            outputs.append(output)
+            sent_variable = output
+        output = self.drop(outputs)
         decoded = self.decoder(output.view(output.size(0)*output.size(1), output.size(2)))
         return decoded.view(output.size(0), output.size(1), decoded.size(1)), hidden
 
