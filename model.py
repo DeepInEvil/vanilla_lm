@@ -50,7 +50,7 @@ class RNNModel(nn.Module):
 
     def forward(self, input, hidden):
         emb = self.drop(self.encoder(input))
-        print (emb.size(), hidden.size())
+        #print (emb.size(), hidden.size())
         output, hidden = self.rnn(emb, hidden)
         output = self.drop(output)
         decoded = self.decoder(output.view(output.size(0)*output.size(1), output.size(2)))
@@ -59,7 +59,9 @@ class RNNModel(nn.Module):
     def init_hidden(self, bsz):
         weight = next(self.parameters())
         if self.rnn_type == 'LSTM':
-            return (Variable(torch.zeros(self.nlayers, bsz, self.nhid)).cuda(),
-                    Variable(torch.zeros(self.nlayers, bsz, self.nhid)).cuda())
+            # return (Variable(torch.zeros(self.nlayers, bsz, self.nhid)).cuda(),
+            #         Variable(torch.zeros(self.nlayers, bsz, self.nhid)).cuda())
+            return (Variable(torch.zeros(bsz, self.nhid)).cuda(),
+                    Variable(torch.zeros(bsz, self.nhid)).cuda())
         else:
             return Variable(torch.zeros(self.nlayers, bsz, self.nhid).cuda())
