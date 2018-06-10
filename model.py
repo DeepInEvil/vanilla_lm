@@ -51,7 +51,6 @@ class RNNModel(nn.Module):
     def forward(self, input, hidden):
         emb = self.drop(self.encoder(input))
         print (hidden)
-        print (emb.size(), hidden.size())
         output, hidden = self.rnn(emb, hidden)
         output = self.drop(output)
         decoded = self.decoder(output.view(output.size(0)*output.size(1), output.size(2)))
