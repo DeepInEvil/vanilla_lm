@@ -57,12 +57,12 @@ class RNNModel(nn.Module):
         emb = self.drop(self.encoder(input))
         #output, hidden = self.rnn(emb, hidden)
         sent_variable = emb
-        outputs = []
+        #outputs = []
         for i in range(self.nlayers):
             output, hidden = self.rnns[i](sent_variable, hidden)
-            outputs.append(output)
+            #outputs.append(output)
             sent_variable = output
-        output = self.drop(outputs)
+        output = self.drop(output)
         decoded = self.decoder(output.view(output.size(0)*output.size(1), output.size(2)))
         return decoded.view(output.size(0), output.size(1), decoded.size(1)), hidden
 
