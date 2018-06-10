@@ -50,8 +50,7 @@ class RNNModel(nn.Module):
 
     def forward(self, input, hidden):
         emb = self.drop(self.encoder(input))
-        if isinstance(hidden, tuple):
-            hidden = hidden[0]
+        print (hidden)
         print (emb.size(), hidden.size())
         output, hidden = self.rnn(emb, hidden)
         output = self.drop(output)
