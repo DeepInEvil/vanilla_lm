@@ -84,9 +84,9 @@ class LSTMCTop(nn.Module):
             gates = self.input_weights(input) + \
                 self.hidden_weights(hx)
             ingate, forgetgate, cellgate, outgate = gates.chunk(4, 1)
-            print (ingate.size())
-            ingate = F.sigmoid(ingate + torch.mm(topic, self.topic_w))
-            forgetgate = F.sigmoid(forgetgate + torch.mm(topic, self.topic_w))
+            #print (ingate.size())
+            ingate = F.sigmoid(ingate + self.topic_w(topic))
+            forgetgate = F.sigmoid(forgetgate + self.topic_w(topic))
             cellgate = F.tanh(cellgate)  # o_t
             outgate = F.sigmoid(outgate)
 
