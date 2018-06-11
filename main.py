@@ -10,6 +10,7 @@ import torch.onnx
 from torch.autograd import Variable
 import data
 import model
+from util import save_model, load_model
 
 parser = argparse.ArgumentParser(description='PyTorch Wikitext-2 RNN/LSTM Language Model')
 parser.add_argument('--data', type=str, default='./data/wikitext-2',
@@ -212,8 +213,9 @@ try:
         print('-' * 89)
         # Save the model if the validation loss is the best we've seen so far.
         if not best_val_loss or val_loss < best_val_loss:
-            with open(args.save, 'wb') as f:
-                torch.save(model, f)
+            # with open(args.save, 'wb') as f:
+            #     torch.save(model, f)
+            save_model(model, args.save)
             best_val_loss = val_loss
         else:
             # Anneal the learning rate if no improvement has been seen in the validation dataset.
@@ -223,12 +225,13 @@ except KeyboardInterrupt:
     print('Exiting from training early')
 
 # Load the best saved model.
-with open(args.save, 'rb') as f:
-    model = torch.load(f)
-    # after load the rnn params are not a continuous chunk of memory
-    # this makes them a continuous chunk, and will speed up forward pass
-    model.rnn.flatten_parameters()
+# with open(args.save, 'rb') as f:
+#     model = torch.load(f)
+#     # after load the rnn params are not a continuous chunk of memory
+#     # this makes them a continuous chunk, and will speed up forward pass
+#     model.rnn.flatten_parameters()
 
+model = load_model(model, args.save)
 # Run on test data.
 test_loss = evaluate(test_data)
 print('=' * 89)
