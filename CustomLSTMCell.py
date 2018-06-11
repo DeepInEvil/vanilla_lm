@@ -102,7 +102,7 @@ class LSTMCTop(nn.Module):
         output = []
         steps = range(input.size(0))
         for i in steps:
-            hidden = recurrence(input[i], hidden)
+            hidden = recurrence(input[i], hidden, topic)
             if isinstance(hidden, tuple):
                 output.append(hidden[0])
             else:
