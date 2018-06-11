@@ -1,19 +1,19 @@
 import torch.nn as nn
 import torch
 from torch.autograd import Variable
-from CustomLSTMCell import LSTMCell
+from CustomLSTMCell import LSTMCell, LSTMCTop
 
 class RNNModel(nn.Module):
     """Container module with an encoder, a recurrent module, and a decoder."""
 
-    def __init__(self, rnn_type, ntoken, ninp, nhid, nlayers, dropout=0.5, tie_weights=False):
+    def __init__(self, rnn_type, ntoken, ninp, nhid, nlayers, dropout=0.5, tie_weights=False, topic_dim=None):
         super(RNNModel, self).__init__()
         self.drop = nn.Dropout(dropout)
         self.encoder = nn.Embedding(ntoken, ninp)
         self.nlayers = nlayers
         if rnn_type in ['LSTM', 'GRU']:
             #self.rnn = getattr(nn, rnn_type)(ninp, nhid, nlayers, dropout=dropout)
-            self.rnn = LSTMCell(ninp, nhid, dropout=dropout, batch_first=False)
+            self.rnn = LSTMCTop(ninp, nhid, dropout=dropout, batch_first=False, top_size=topic_dim)
             # self.rnn = nn.Sequential(OrderedDict([
             #                 ('LSTM1', nn.LSTM(ninp, nhid, 1),
             #                 ('LSTM2', nn.LSTM(ninp, nhid, 1)))]))
@@ -53,9 +53,9 @@ class RNNModel(nn.Module):
         self.decoder.bias.data.zero_()
         self.decoder.weight.data.uniform_(-initrange, initrange)
 
-    def forward(self, input, hidden):
+    def forward(self, input, hidden, top):
         emb = self.drop(self.encoder(input))
-        output, hidden = self.rnn(emb, hidden)
+        output, hidden = self.rnn(emb, hidden, top)
         # sent_variable = emb
         # #outputs = []
         # for i in range(self.nlayers):
