@@ -10,6 +10,8 @@ import torch.onnx
 from torch.autograd import Variable
 import data
 import model
+from gensim import models
+import gensim
 from util import save_model, load_model
 
 parser = argparse.ArgumentParser(description='PyTorch Wikitext-2 RNN/LSTM Language Model')
@@ -47,6 +49,8 @@ parser.add_argument('--save', type=str, default='model.pt',
                     help='path to save the final model')
 parser.add_argument('--onnx-export', type=str, default='',
                     help='path to export the final model in onnx format')
+parser.add_argument('--domain', type=str, default='apnews',
+                    help='with additional topic embedding')
 args = parser.parse_args()
 
 # Set the random seed manually for reproducibility.
@@ -62,6 +66,9 @@ if torch.cuda.is_available():
 ###############################################################################
 
 corpus = data.Corpus(args.data)
+lda_path = os.path.expanduser('~/topic_lms/data/' + args.domain + '/lda_models/lda_model')
+#path to gensim dictionary used to create lda model
+lda_dict_path = os.path.expanduser('~/topic_lms/data/' + args.domain + '/lda_models/lda_dict')
 
 # Starting from sequential data, batchify arranges the dataset into columns.
 # For instance, with the alphabet as the sequence and batch size 4, we'd get
@@ -87,11 +94,62 @@ def batchify(data, bsz):
         return data.cuda()
     else:
         return data
+#####################################
+# methods for fetching topic vectors#
+#####################################
 
+
+def get_lda_vec(lda_dict):
+    """
+    get lda vector
+    :param lda_dict:
+    :return:
+    """
+    lda_vec = np.zeros(50, dtype='float32')
+    for id, val in lda_dict:
+        lda_vec[id] = val
+    return lda_vec
+
+
+def get_id2word(idx, idx2w_dict):
+    """
+    get id2word mappings
+    :param idx:
+    :param idx2w_dict:
+    :return:
+    """
+    try:
+        return idx2w_dict[idx]
+    except KeyError:
+        return '__UNK__'
+
+
+def get_theta(texts, lda, dictionari, idx2word):
+    """
+    get doc-topic distribution vector for all reviews
+    :param texts:
+    :param lda:e
+    :param dictionari:
+    :param idx2word:
+    :return:
+    """
+    texts = np.transpose(texts)  # B X S
+    texts = [[get_id2word(idx, idx2word) for idx in sent] for sent in texts]
+    review_alphas = np.array([get_lda_vec(lda[dictionari.doc2bow(sentence)]) for sentence in texts])
+    return torch.from_numpy(review_alphas)
+
+
+# Load data
 eval_batch_size = 64
 train_data = batchify(corpus.train, args.batch_size)
 val_data = batchify(corpus.valid, eval_batch_size)
 test_data = batchify(corpus.test, eval_batch_size)
+w2id = np.load(args.data + '/w2id.npy').item()
+idx2word = np.load(args.data + '/id2w.npy').item()
+# Load LDA models
+lda_model = models.LdaModel.load(lda_path)
+# load the lda dictionary
+lda_dictionary = gensim.corpora.Dictionary.load(lda_dict_path)
 
 ###############################################################################
 # Build the model
@@ -145,7 +203,13 @@ def evaluate(data_source):
     hidden = model.init_hidden(eval_batch_size)
     for i in range(0, data_source.size(0) - 1, args.bptt):
         data, targets = get_batch(data_source, i)
-        output, hidden = model(data, hidden)
+        if args.cuda:
+            topic_vec = get_theta(data.data.cpu().numpy(), lda_model, lda_dictionary, idx2word).cuda()  # B X TOPIC_DIM
+            topic_vec = topic_vec.type(torch.cuda.FloatTensor)
+        else:
+            topic_vec = get_theta(data.data.cpu().numpy(), lda_model, lda_dictionary, idx2word)
+            topic_vec = topic_vec.type(torch.FloatTensor)
+        output, hidden = model(data, hidden, topic_vec)
         output_flat = output.view(-1, ntokens)
         total_loss += len(data) * criterion(output_flat, targets).data[0]
         hidden = repackage_hidden(hidden)
@@ -160,8 +224,13 @@ def train():
     #ntokens = len(corpus.dictionary) + 2
     hidden = model.init_hidden(args.batch_size)
     for batch, i in enumerate(range(0, train_data.size(0) - 1, args.bptt)):
-        data, targets = get_batch(train_data, i) # data size SEQ X BATCH_SIZE, targets: SEQ X BATCH_SIZE, 1
-        topic_vec = Variable(torch.zeros(50, args.nhid)).cuda()
+        data, targets = get_batch(train_data, i)  # data size SEQ X BATCH_SIZE, targets: SEQ X BATCH_SIZE, 1
+        if args.cuda:
+            topic_vec = get_theta(data.data.cpu().numpy(), lda_model, lda_dictionary, idx2word).cuda()  # B X TOPIC_DIM
+            topic_vec = topic_vec.type(torch.cuda.FloatTensor)
+        else:
+            topic_vec = get_theta(data.data.cpu().numpy(), lda_model, lda_dictionary, idx2word)
+            topic_vec = topic_vec.type(torch.FloatTensor)
         # Starting each batch, we detach the hidden state from how it was previously produced.
         # If we didn't, the model would try backpropagating all the way to start of the dataset.
         hidden = repackage_hidden(hidden)
