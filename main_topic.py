@@ -144,8 +144,9 @@ eval_batch_size = 64
 train_data = batchify(corpus.train, args.batch_size)
 val_data = batchify(corpus.valid, eval_batch_size)
 test_data = batchify(corpus.test, eval_batch_size)
+# load word 2 index dictionary
 w2id = np.load(args.data + '/w2id.npy').item()
-idx2word = np.load(args.data + '/id2w.npy').item()
+idx2word = {v: k for k, v in w2id.items()}
 # Load LDA models
 lda_model = models.LdaModel.load(lda_path)
 # load the lda dictionary
