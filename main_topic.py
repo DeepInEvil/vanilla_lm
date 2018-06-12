@@ -160,9 +160,11 @@ ntokens = len(corpus.dictionary) + 2
 print ("Length of vocabulary: " + str(ntokens))
 if args.cuda:
     print ("Using CUDA...")
-    model = model.RNNModel(args.model, ntokens, args.emsize, args.nhid, args.nlayers, args.dropout, args.tied, topic_dim=50).cuda()
+    model = model.RNNModelmitTopic(args.model, ntokens, args.emsize, args.nhid, args.nlayers, args.dropout, args.tied,
+                                   topic_dim=50).cuda()
 else:
-    model = model.RNNModel(args.model, ntokens, args.emsize, args.nhid, args.nlayers, args.dropout, args.tied)
+    model = model.RNNModelmitTopic(args.model, ntokens, args.emsize, args.nhid, args.nlayers, args.dropout, args.tied,
+                                   topic_dim=50)
 
 criterion = nn.CrossEntropyLoss()
 
