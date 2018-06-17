@@ -15,12 +15,6 @@ class Dictionary(object):
     def add_vocab(self, word):
         self.vocab[word] += 1.0
 
-    # def add_word(self, word):
-    #     if word not in self.word2idx:
-    #         self.idx2word.append(word)
-    #         self.word2idx[word] = len(self.idx2word) - 1
-    #     return self.word2idx[word]
-
     def create_w2id(self, create=False, path=None):
         if create:
             print ("Creating Vocab..................")
@@ -81,7 +75,7 @@ class Corpus(object):
             ids = Variable(torch.LongTensor(tokens))
             token = 0
             for line in f:
-                words = line.split() + ['<eos>']
+                words = ['<go>'] + line.split() + ['<eos>']
                 for word in words:
                     ids[token] = self.dictionary.get_w2id(word)
                     token += 1
