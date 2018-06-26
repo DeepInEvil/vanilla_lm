@@ -23,8 +23,10 @@ parser.add_argument('--nhid', type=int, default=200,
                     help='number of hidden units per layer')
 parser.add_argument('--nlayers', type=int, default=1,
                     help='number of layers')
-parser.add_argument('--lr', type=float, default=20,
-                    help='initial learning rate')
+# parser.add_argument('--lr', type=float, default=20,
+#                     help='initial learning rate')
+parser.add_argument('--lr', type=float, default=0.001,
+                     help='initial learning rate')
 parser.add_argument('--clip', type=float, default=0.25,
                     help='gradient clipping')
 parser.add_argument('--epochs', type=int, default=40,
@@ -149,6 +151,7 @@ def evaluate(data_source):
         output_flat = output.view(-1, ntokens)
         total_loss += len(data) * criterion(output_flat, targets).data[0]
         hidden = repackage_hidden(hidden)
+        optimizer.zero_grad()
     return total_loss / len(data_source)
 
 
@@ -164,6 +167,7 @@ def train():
         # Starting each batch, we detach the hidden state from how it was previously produced.
         # If we didn't, the model would try backpropagating all the way to start of the dataset.
         hidden = repackage_hidden(hidden)
+        optimizer.zero_grad()
         model.zero_grad()
         output, hidden = model(data, hidden)
         loss = criterion(output.view(-1, ntokens), targets)
@@ -171,9 +175,10 @@ def train():
 
         # `clip_grad_norm` helps prevent the exploding gradient problem in RNNs / LSTMs.
         torch.nn.utils.clip_grad_norm(model.parameters(), args.clip)
-        for p in model.parameters():
-            p.data.add_(-lr, p.grad.data)
-
+        # Original implementation
+        # for p in model.parameters():
+        #     p.data.add_(-lr, p.grad.data)
+        optimizer.step()
         total_loss += loss.data[0]
 
         if batch % args.log_interval == 0 and batch > 0:
@@ -202,6 +207,7 @@ best_val_loss = None
 
 # At any point you can hit Ctrl + C to break out of training early.
 try:
+    optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
     for epoch in range(1, args.epochs+1):
         epoch_start_time = time.time()
         train()
@@ -217,9 +223,10 @@ try:
             #     torch.save(model, f)
             save_model(model, args.save)
             best_val_loss = val_loss
-        else:
-            # Anneal the learning rate if no improvement has been seen in the validation dataset.
-            lr /= 4.0
+        # else:
+        #     # Anneal the learning rate if no improvement has been seen in the validation dataset.
+        #     #lr /= 4.0
+        #     continue
 except KeyboardInterrupt:
     print('-' * 89)
     print('Exiting from training early')
