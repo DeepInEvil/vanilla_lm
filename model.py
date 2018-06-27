@@ -7,14 +7,14 @@ from CustomLSTMCell import LSTMCell, LSTMCTop
 class RNNModel(nn.Module):
     """Container module with an encoder, a recurrent module, and a decoder."""
 
-    def __init__(self, rnn_type, ntoken, ninp, nhid, nlayers, dropout=0.5, tie_weights=False):
+    def __init__(self, rnn_type, ntoken, ninp, nhid, nlayers, drope=0.4, droph=0.6, tie_weights=False):
         super(RNNModel, self).__init__()
-        self.drop = nn.Dropout(dropout)
+        self.drop = nn.Dropout(drope)
         self.encoder = nn.Embedding(ntoken, ninp)
         self.nlayers = nlayers
         if rnn_type in ['LSTM', 'GRU']:
             #self.rnn = getattr(nn, rnn_type)(ninp, nhid, nlayers, dropout=dropout)
-            self.rnn = LSTMCell(ninp, nhid, dropout=dropout, batch_first=False)
+            self.rnn = LSTMCell(ninp, nhid, dropout=droph, batch_first=False)
         else:
             try:
                 nonlinearity = {'RNN_TANH': 'tanh', 'RNN_RELU': 'relu'}[rnn_type]
@@ -56,7 +56,7 @@ class RNNModel(nn.Module):
         #     output, hidden = self.rnns[i](sent_variable, hidden)
         #     #outputs.append(output)
         #     sent_variable = output
-        output = self.drop(output)
+        #output = self.drop(output)
         decoded = self.decoder(output.view(output.size(0)*output.size(1), output.size(2)))
         return decoded.view(output.size(0), output.size(1), decoded.size(1)), hidden
 
